@@ -17,6 +17,17 @@ function sleep(ms: number, signal: AbortSignal): Promise<void> {
   });
 }
 
+/**
+ * Random request id. `crypto.randomUUID` only exists in secure contexts
+ * (HTTPS or localhost), so plain-HTTP access over the LAN falls back to
+ * `getRandomValues`, which is available everywhere.
+ */
+export function randomId(): string {
+  if (typeof crypto.randomUUID === "function") return crypto.randomUUID();
+  const bytes = crypto.getRandomValues(new Uint8Array(16));
+  return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+}
+
 export const browserDeps: ControllerDeps = {
   async transport(request, signal) {
     const res = await fetch("/api/respond", {
@@ -34,7 +45,7 @@ export const browserDeps: ControllerDeps = {
     return { status: res.status, body };
   },
   sleep,
-  createRequestId: () => `req-${crypto.randomUUID()}`,
+  createRequestId: () => `req-${randomId()}`,
   eventIntervalMs: EVENT_INTERVAL_MS,
 };
 
@@ -42,5 +53,5 @@ export function useResponseSession(deps: ControllerDeps = browserDeps) {
   const [controller] = useState<ResponseController>(() => createResponseController(deps));
   useEffect(() => () => controller.cancelInFlight(), [controller]);
   const state = useSyncExternalStore(controller.subscribe, controller.getState, () => initialResponseState);
-  return { state, start: controller.start, retry: controller.retry };
+  return { state, controller, start: controller.start, retry: controller.retry };
 }

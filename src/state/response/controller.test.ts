@@ -234,3 +234,19 @@ describe("response controller — transport failures", () => {
     expect(c.getState().phase).toBe("complete");
   });
 });
+
+describe("randomId", () => {
+  it("falls back to getRandomValues when randomUUID is unavailable (plain HTTP on a LAN IP)", async () => {
+    const { randomId } = await import("./useResponseSession");
+    const original = crypto.randomUUID;
+    Object.defineProperty(crypto, "randomUUID", { value: undefined, configurable: true });
+    try {
+      const a = randomId();
+      expect(a).toMatch(/^[0-9a-f]{32}$/);
+      expect(randomId()).not.toBe(a);
+      expect(`req-${a}`).toMatch(/^[A-Za-z0-9._:-]{1,128}$/);
+    } finally {
+      Object.defineProperty(crypto, "randomUUID", { value: original, configurable: true });
+    }
+  });
+});

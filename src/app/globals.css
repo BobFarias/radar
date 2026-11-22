@@ -5,7 +5,9 @@
 @theme {
   --color-canvas: #f2f0ec;
   --color-surface: #ffffff;
-  --color-chip: #f3f0eb;
+  --color-chip: #f2f1ed;
+  --color-sand: #ebe3da;
+  --color-icon: #848484;
   --color-line: #e6e1d8;
   --color-ink: #1f1f1f;
   --color-muted: #6b6b6b;
@@ -17,6 +19,7 @@
   --color-danger-bg: #fdecec;
   --color-ok: #1d6b3a;
   --color-ok-bg: #e7f4ec;
+  --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", serif;
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
@@ -29,4 +32,10 @@ body {
 :focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
+}
+
+/* Thin scrollbars from the Figma table design. */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-sand) var(--color-chip);
 }

@@ -7,13 +7,17 @@ import { InvalidBlockFallback, RenderErrorFallback, UnsupportedBlockFallback } f
 import { blockRegistry, resolveBlockComponent, type BlockRegistry } from "./registry";
 
 /** Isolates a render crash to its own block. */
-class BlockBoundary extends Component<{ type: BlockType; children: ReactNode }, { failed: boolean }> {
+class BlockBoundary extends Component<
+  { id: string; type: BlockType; otherSections: number; children: ReactNode },
+  { failed: boolean }
+> {
   override state = { failed: false };
   static getDerivedStateFromError() {
     return { failed: true };
   }
   override render() {
-    return this.state.failed ? <RenderErrorFallback type={this.props.type} /> : this.props.children;
+    const { id, type, otherSections, children } = this.props;
+    return this.state.failed ? <RenderErrorFallback id={id} type={type} otherSections={otherSections} /> : children;
   }
 }
 
@@ -30,17 +34,20 @@ export function BlockRenderer({ entries, registry = blockRegistry }: { entries: 
   return (
     <div className="grid gap-4">
       {entries.map(({ key, result }) => {
+        const otherSections = entries.length - 1;
         switch (result.status) {
           case "valid":
             return (
-              <BlockBoundary key={key} type={result.block.type}>
+              <BlockBoundary key={key} id={result.block.id} type={result.block.type} otherSections={otherSections}>
                 {renderValidBlock(result.block, registry)}
               </BlockBoundary>
             );
           case "unsupported":
-            return <UnsupportedBlockFallback key={key} type={result.type} />;
+            return <UnsupportedBlockFallback key={key} id={result.id} type={result.type} otherSections={otherSections} />;
           case "invalid":
-            return <InvalidBlockFallback key={key} type={result.type} title={result.title} errors={result.errors} />;
+            return (
+              <InvalidBlockFallback key={key} id={result.id} type={result.type} errors={result.errors} otherSections={otherSections} />
+            );
         }
       })}
     </div>

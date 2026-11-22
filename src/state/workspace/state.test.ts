@@ -55,6 +55,6 @@ describe("workspaceReducer — selections", () => {
       { type: "filters_changed", filters: { clientId: "CL001" } },
     ]);
     expect(s.selectedOpportunityId).toBe("O002");
-    expect(s.filters).toEqual({ clientId: "CL001", priority: "High", stage: null });
+    expect(s.filters).toEqual({ query: "", clientId: "CL001", priority: "High", stage: null });
   });
 });

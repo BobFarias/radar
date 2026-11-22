@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { render, screen, within } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import type { BlockEntry } from "@/state/response/state";
 import { fixtureBlock } from "@/test/fixtures";
@@ -31,8 +31,10 @@ describe("BlockRenderer", () => {
 
   it("renders a safe fallback for the unsupported_block fixture and never executes its payload", () => {
     const { container } = render(<BlockRenderer entries={[entry(fixtureBlock("unsupported_block", "future-block"))]} />);
-    expect(screen.getByRole("status")).toHaveTextContent("This view isn't available");
-    expect(screen.getByText("future_component")).toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent("This part of the answer can't be shown here");
+    // The internal type name only appears in the technical details, never in the message.
+    expect(screen.getByText(/Block type: future_component/)).toBeInTheDocument();
+    expect(screen.getByText(/Block type: future_component/).closest("details")).not.toBeNull();
     expect(container.querySelector("script")).toBeNull();
     expect(container.innerHTML).not.toContain("__assessmentUnsafe");
     expect((window as unknown as Record<string, unknown>).__assessmentUnsafe).toBeUndefined();
@@ -40,7 +42,7 @@ describe("BlockRenderer", () => {
 
   it("renders an invalid-data fallback for the malformed chart instead of a chart", () => {
     render(<BlockRenderer entries={[entry(fixtureBlock("malformed_block", "invalid-chart"))]} />);
-    expect(screen.getByRole("status")).toHaveTextContent("Opportunities couldn't be displayed");
+    expect(screen.getByRole("status")).toHaveTextContent("This chart couldn't be shown");
     expect(screen.queryByRole("figure")).toBeNull();
     expect(screen.queryByText("not-a-number")).toBeNull();
   });
@@ -87,6 +89,7 @@ describe("BlockRenderer", () => {
       console.error = original;
     }
     expect(screen.getByRole("table", { name: "Client opportunities" })).toBeInTheDocument();
-    expect(within(screen.getByRole("status")).getByText("Something went wrong showing this section")).toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent("Something went wrong showing this chart");
+    expect(screen.getByRole("status")).toHaveTextContent("The other section of this answer is shown as usual.");
   });
 });

@@ -6,6 +6,8 @@ import type { Priority, ReviewFormBlock, Stage } from "@/contracts/blocks";
  */
 
 export interface OpportunityFilters {
+  /** Free-text search over the validated rows (application-side only). */
+  query: string;
   clientId: string | null;
   priority: Priority | null;
   stage: Stage | null;
@@ -29,7 +31,7 @@ export interface WorkspaceState {
 
 export const initialWorkspaceState: WorkspaceState = {
   selectedOpportunityId: null,
-  filters: { clientId: null, priority: null, stage: null },
+  filters: { query: "", clientId: null, priority: null, stage: null },
   drafts: {},
 };
 

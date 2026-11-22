@@ -1,6 +1,16 @@
 import "@testing-library/jest-dom/vitest";
 import { afterEach } from "vitest";
 
+if (typeof window !== "undefined" && !("ResizeObserver" in window)) {
+  // jsdom has no ResizeObserver; Recharts' ResponsiveContainer needs one.
+  class ResizeObserverStub {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  }
+  Object.assign(globalThis, { ResizeObserver: ResizeObserverStub });
+}
+
 // RTL auto-cleanup needs Vitest globals; register it explicitly instead.
 afterEach(async () => {
   if (typeof document !== "undefined") {
