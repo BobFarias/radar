@@ -55,6 +55,50 @@ describe("workspaceReducer — drafts", () => {
   });
 });
 
+describe("workspaceReducer — drafts per briefing and submissions", () => {
+  const scoped = (scope: string, idempotencyKey = `key-${scope}`): WorkspaceAction => ({
+    type: "draft_seeded",
+    block: form,
+    idempotencyKey,
+    scope,
+  });
+
+  it("keeps drafts of different briefings for the same opportunity apart", () => {
+    const a = draftKey(form, "req-a");
+    const b = draftKey(form, "req-b");
+    const s = run([scoped("req-a"), scoped("req-b"), { type: "draft_edited", key: a, field: "body", value: "Only A", newIdempotencyKey: "x" }]);
+    expect(a).not.toBe(b);
+    expect(s.drafts[a]!.body).toBe("Only A");
+    expect(s.drafts[b]!.body).toBe(form.body);
+    expect(s.drafts[a]!.idempotencyKey).not.toBe(s.drafts[b]!.idempotencyKey);
+  });
+
+  it("keeps the key for a retry of the same submission", () => {
+    const s = run([seed("key-a"), { type: "draft_submit_started", key }, { type: "draft_submit_started", key }]);
+    expect(s.drafts[key]).toMatchObject({ idempotencyKey: "key-a", attempted: true, savedTaskId: null });
+  });
+
+  it("starts a new submission when content changes after a save attempt", () => {
+    const s = run([seed("key-a"), { type: "draft_submit_started", key }, edit("changed", "key-b")]);
+    expect(s.drafts[key]).toMatchObject({ idempotencyKey: "key-b", attempted: false });
+  });
+
+  it("records the saved task id and time", () => {
+    const s = run([seed(), { type: "draft_saved", key, taskId: "TASK-1", savedAt: "2026-11-22T10:00:00.000Z" }]);
+    expect(s.drafts[key]).toMatchObject({ savedTaskId: "TASK-1", savedAt: "2026-11-22T10:00:00.000Z" });
+  });
+
+  it("restores stored drafts without overwriting edits made in this visit", () => {
+    const current = run([seed("key-a"), edit("Edited now")]);
+    const stored = { ...current.drafts[key]!, subject: "Stored earlier" };
+    const other = { ...stored, subject: "Other briefing" };
+    const s = workspaceReducer(current, { type: "drafts_restored", drafts: { [key]: stored, "req-x:CL001:O001": other }, skipped: 2 });
+    expect(s.drafts[key]!.subject).toBe("Edited now");
+    expect(s.drafts["req-x:CL001:O001"]!.subject).toBe("Other briefing");
+    expect(s).toMatchObject({ draftsRestored: true, draftsSkipped: 2 });
+  });
+});
+
 describe("workspaceReducer — selections", () => {
   it("preserves selection and filters independently of drafts", () => {
     const s = run([

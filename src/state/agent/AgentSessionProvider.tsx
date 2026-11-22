@@ -3,6 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef, type ReactNode } from "react";
 import type { ScenarioId } from "@/contracts/api";
 import { createAnalysisSnapshot, nextReference, opportunityHistory, type AnalysisSnapshot } from "@/state/history/analysisSnapshot";
+import { BRIEFING_PREFIX, briefingHistory, createBriefingSnapshot, type BriefingSnapshot } from "@/state/history/briefingSnapshot";
 import type { SnapshotStore } from "@/state/history/snapshotStore";
 import { randomId } from "@/state/ids";
 import type { ControllerDeps } from "@/state/response/controller";
@@ -27,12 +28,15 @@ export function AgentSessionProvider({
   scenarios,
   deps = browserDeps,
   history = opportunityHistory,
+  briefings = briefingHistory,
   children,
 }: {
   scenarios: ScenarioOption[];
   deps?: ControllerDeps;
   /** Where successful opportunity analyses are saved. */
   history?: SnapshotStore<AnalysisSnapshot>;
+  /** Where generated client briefings are saved. */
+  briefings?: SnapshotStore<BriefingSnapshot>;
   children: ReactNode;
 }) {
   const { state: live, controller } = useResponseSession(deps);
@@ -48,27 +52,23 @@ export function AgentSessionProvider({
   }, [promptFor]);
 
   // Record every state change against its request id, so finished turns keep their content.
-  // An opportunity analysis (complete, or partial as unfinished) is also saved to history. This lives in the provider
-  // (not the Agent page) so a response that finishes while the user is elsewhere is still saved.
+  // An opportunity analysis (complete, or partial as unfinished) and a client briefing are also saved to history.
+  // This lives in the provider (not the Agent page) so a response that finishes while the user is elsewhere is still saved.
   useEffect(
     () =>
       controller.subscribe(() => {
         const state = controller.getState();
         dispatch({ type: "snapshot_recorded", state });
-        if ((state.phase === "complete" || state.phase === "partial") && state.scenarioId) {
-          const saved = history.getSnapshot();
-          const existing = saved.status === "ready" ? saved.items : [];
-          if (existing.some((s) => s.requestId === state.requestId)) return;
-          const snapshot = createAnalysisSnapshot(state, {
-            id: `an-${randomId()}`,
-            reference: nextReference(existing),
-            prompt: promptForRef.current(state.scenarioId),
-            now: new Date(),
-          });
-          if (snapshot) history.add(snapshot); // de-duplicated by request id
-        }
+        if ((state.phase !== "complete" && state.phase !== "partial") || !state.scenarioId) return;
+        const meta = { prompt: promptForRef.current(state.scenarioId), now: new Date() };
+        saveOnce(history, state.requestId, (existing) =>
+          createAnalysisSnapshot(state, { ...meta, id: `an-${randomId()}`, reference: nextReference(existing) }),
+        );
+        saveOnce(briefings, state.requestId, (existing) =>
+          createBriefingSnapshot(state, { ...meta, id: `br-${randomId()}`, reference: nextReference(existing, BRIEFING_PREFIX) }),
+        );
       }),
-    [controller, history],
+    [controller, history, briefings],
   );
 
   const send = useCallback(
@@ -92,6 +92,19 @@ export function AgentSessionProvider({
     [scenarios, conversation, live, send, retry],
   );
   return <AgentSessionContext.Provider value={value}>{children}</AgentSessionContext.Provider>;
+}
+
+/** Adds the snapshot for a request unless one is already saved (store adds are also de-duplicated by request id). */
+function saveOnce<T extends { requestId: string }>(
+  store: SnapshotStore<T>,
+  requestId: string | null,
+  create: (existing: T[]) => T | null,
+) {
+  const saved = store.getSnapshot();
+  const existing = saved.status === "ready" ? saved.items : [];
+  if (existing.some((s) => s.requestId === requestId)) return;
+  const snapshot = create(existing);
+  if (snapshot) store.add(snapshot);
 }
 
 export function useAgentSession(): AgentSessionValue {

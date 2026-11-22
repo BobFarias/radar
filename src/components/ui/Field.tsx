@@ -25,3 +25,14 @@ export function Field({ label, children, className }: { label: string; children:
     </div>
   );
 }
+
+const textControl =
+  "w-full rounded-xl border border-line bg-surface px-3 py-2 text-sm text-ink hover:border-muted aria-[invalid=true]:border-danger disabled:bg-chip";
+
+export function TextInput({ className, ...props }: ComponentProps<"input">) {
+  return <input type="text" className={cn(textControl, "min-h-10", className)} {...props} />;
+}
+
+export function TextArea({ className, ...props }: ComponentProps<"textarea">) {
+  return <textarea className={cn(textControl, "min-h-32 resize-y leading-relaxed", className)} {...props} />;
+}

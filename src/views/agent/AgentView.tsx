@@ -7,6 +7,7 @@ import { BlockRenderer } from "@/components/blocks/BlockRenderer";
 import type { ScenarioId } from "@/contracts/api";
 import { useAgentSession } from "@/state/agent/AgentSessionProvider";
 import { analysisHref, opportunityHistory } from "@/state/history/analysisSnapshot";
+import { briefingHistory, briefingHref } from "@/state/history/briefingSnapshot";
 import { useSnapshotHistory } from "@/state/history/useSnapshotHistory";
 import { turnView, type Turn } from "@/state/agent/conversation";
 import { Composer } from "./Composer";
@@ -71,6 +72,12 @@ function TurnItem({
     () => (saved ? { reference: saved.reference, createdAt: saved.createdAt, href: analysisHref(saved.reference) } : undefined),
     [saved],
   );
+  const briefings = useSnapshotHistory(briefingHistory);
+  const savedBriefing = briefings.status === "ready" ? briefings.items.find((s) => s.requestId === shown?.requestId) : undefined;
+  const briefing = useMemo(
+    () => (savedBriefing ? { reference: savedBriefing.reference, createdAt: savedBriefing.createdAt, href: briefingHref(savedBriefing.reference) } : undefined),
+    [savedBriefing],
+  );
   const blockContext = useMemo(
     () => ({
       scopeId: turn.requestId,
@@ -79,8 +86,9 @@ function TurnItem({
       onChoosePrompt,
       incomplete,
       analysis,
+      briefing,
     }),
-    [shown?.requestId, turn.requestId, turn.scenarioId, onChoosePrompt, incomplete, analysis],
+    [shown?.requestId, turn.requestId, turn.scenarioId, onChoosePrompt, incomplete, analysis, briefing],
   );
 
   return (

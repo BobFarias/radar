@@ -1,7 +1,6 @@
 "use client";
 
-import { FileText, ListFilter, Search, SquareArrowOutUpRight, Zap } from "lucide-react";
-import Link from "next/link";
+import { FileText, ListFilter, Search, Zap } from "lucide-react";
 import { useId } from "react";
 import { PRIORITIES, STAGES, type OpportunityRow, type OpportunityTableBlock, type Priority, type Stage } from "@/contracts/blocks";
 import {
@@ -20,11 +19,11 @@ import {
   cn,
   type BadgeTone,
 } from "@/components/ui";
-import { formatDateTime } from "@/state/format";
 import { activeFilterCount, clientOptions, filterOpportunities, NO_FILTERS } from "@/state/workspace/filters";
 import { filterScope, filtersFor, type OpportunityFilters } from "@/state/workspace/state";
 import { useWorkspace } from "@/state/workspace/WorkspaceProvider";
 import { useResponseBlockContext } from "./ResponseBlockContext";
+import { SnapshotFooter } from "./SnapshotFooter";
 
 const priorityTone: Record<Priority, BadgeTone> = { High: "accent", Medium: "warn", Low: "neutral" };
 const ALL = "all";
@@ -201,33 +200,17 @@ export function OpportunityTable({ block }: { block: OpportunityTableBlock }) {
             </DataTable>
           )}
         </div>
-        <footer className="flex min-h-[39px] flex-wrap items-center gap-x-1.5 gap-y-1 bg-sand px-[17px] py-2 text-sm text-[#6a6865]">
-          <Zap aria-hidden="true" className="h-4 w-4 shrink-0" />
-          <h2 id={headingId} className="font-normal">
-            {block.title}
-          </h2>
-          {analysis ? (
-            <span className="text-[#6a6865]">
-              <span aria-hidden="true"> — </span>
-              <span className="font-medium">{analysis.reference}</span>
-              <span aria-hidden="true"> · </span>
-              <time dateTime={analysis.createdAt}>{formatDateTime(analysis.createdAt, "short")}</time>
-            </span>
-          ) : null}
-          <span className="ml-auto flex items-center gap-2">
-            {incomplete ? <Badge tone="warn">Incomplete</Badge> : null}
-            {analysis?.href ? (
-              <Link
-                href={analysis.href}
-                aria-label={`Open ${analysis.reference} in Opportunities`}
-                title="Open in Opportunities"
-                className="grid h-8 w-8 place-items-center rounded-full text-[#6a6865] transition hover:bg-surface/60 hover:text-ink"
-              >
-                <SquareArrowOutUpRight aria-hidden="true" className="h-4 w-4" />
-              </Link>
-            ) : null}
-          </span>
-        </footer>
+        <SnapshotFooter
+          icon={<Zap aria-hidden="true" className="h-4 w-4 shrink-0" />}
+          label={
+            <h2 id={headingId} className="font-normal">
+              {block.title}
+            </h2>
+          }
+          snapshot={analysis}
+          workspace="Opportunities"
+          badges={incomplete ? <Badge tone="warn">Incomplete</Badge> : null}
+        />
       </section>
     </div>
   );

@@ -1,9 +1,9 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, ListFilter, Smile, Zap } from "lucide-react";
+import { ListFilter, Smile, Zap } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import { Badge, Button, cn, EmptyState, LoadingState, Popover, RadioGroup, WarningState } from "@/components/ui";
+import { Badge, Button, EmptyState, FilterPills, LoadingState, Pagination, Popover, RadioGroup, WarningState } from "@/components/ui";
 import { formatDateTime } from "@/state/format";
 import { analysisHref, opportunityHistory, type AnalysisSnapshot } from "@/state/history/analysisSnapshot";
 import type { SnapshotStore } from "@/state/history/snapshotStore";
@@ -85,56 +85,6 @@ const STATUS_TABS: Array<{ value: AnalysisListView["status"]; label: string }> =
   { value: "partial", label: "Unfinished" },
 ];
 
-/** Status pills (Figma tab style). Toggle buttons: the pressed one is the active filter. */
-function StatusTabs({
-  value,
-  counts,
-  onChange,
-}: {
-  value: AnalysisListView["status"];
-  counts: Record<AnalysisListView["status"], number>;
-  onChange: (status: AnalysisListView["status"]) => void;
-}) {
-  return (
-    <div role="group" aria-label="Analysis status" className="flex flex-wrap gap-2">
-      {STATUS_TABS.map((tab) => {
-        const active = tab.value === value;
-        return (
-          <button
-            key={tab.value}
-            type="button"
-            aria-pressed={active}
-            onClick={() => onChange(tab.value)}
-            className={cn(
-              "inline-flex h-[33px] items-center gap-1.5 rounded-full border px-5 text-sm transition",
-              active ? "border-transparent bg-[#f5f1ec] text-ink" : "border-sand text-muted hover:text-ink",
-            )}
-          >
-            {tab.label}{" "}
-            <span className="text-xs text-muted">{counts[tab.value]}</span>
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-
-function Pagination({ page, pageCount, onPage }: { page: number; pageCount: number; onPage: (page: number) => void }) {
-  return (
-    <nav aria-label="Pagination" className="flex items-center justify-end gap-2 text-sm">
-      <Button variant="ghost" aria-label="Previous page" disabled={page <= 1} onClick={() => onPage(page - 1)} className="h-9 w-9 px-0">
-        <ChevronLeft aria-hidden="true" className="h-4 w-4" />
-      </Button>
-      <span>
-        Page {page} of {pageCount}
-      </span>
-      <Button variant="ghost" aria-label="Next page" disabled={page >= pageCount} onClick={() => onPage(page + 1)} className="h-9 w-9 px-0">
-        <ChevronRight aria-hidden="true" className="h-4 w-4" />
-      </Button>
-    </nav>
-  );
-}
-
 /**
  * Opportunities workspace: the list of opportunity analyses generated in
  * Agent, with a period filter, sort and pagination. Each row opens the saved
@@ -192,7 +142,13 @@ export function OpportunitiesView({ store = opportunityHistory }: { store?: Snap
       {all.length > 0 ? (
         <section aria-labelledby="analyses-heading" className="grid gap-3">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <StatusTabs value={view.status} counts={counts} onChange={(status) => setView({ status, page: 1 })} />
+            <FilterPills
+              label="Analysis status"
+              options={STATUS_TABS}
+              value={view.status}
+              counts={counts}
+              onChange={(status) => setView({ status, page: 1 })}
+            />
             <ListFilters view={view} onChange={setView} />
           </div>
           <h2 id="analyses-heading" className="text-sm font-normal text-muted" aria-live="polite">

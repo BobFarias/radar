@@ -50,10 +50,10 @@ function derived(blocks: Block[]): Pick<AnalysisSnapshot, "title" | "opportunity
   return table ? { title: table.title, opportunityCount: table.rows.length } : null;
 }
 
-/** Next reference after the highest one in history: OP00001, OP00002, … */
-export function nextReference(existing: Pick<AnalysisSnapshot, "reference">[]): string {
-  const highest = existing.reduce((max, s) => Math.max(max, Number(s.reference.slice(2)) || 0), 0);
-  return `OP${String(highest + 1).padStart(5, "0")}`;
+/** Next reference after the highest one in history: OP00001, OP00002, … (or another prefix, e.g. BR). */
+export function nextReference(existing: Array<{ reference: string }>, prefix = "OP"): string {
+  const highest = existing.reduce((max, s) => Math.max(max, Number(s.reference.slice(prefix.length)) || 0), 0);
+  return `${prefix}${String(highest + 1).padStart(5, "0")}`;
 }
 
 /** Path of the analysis in the Opportunities workspace. */

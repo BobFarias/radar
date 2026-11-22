@@ -1,5 +1,6 @@
 import { vi } from "vitest";
 import { POST as respondPost } from "@/app/api/respond/route";
+import { POST as reviewTasksPost } from "@/app/api/review-tasks/route";
 import { GET as sourceGet } from "@/app/api/sources/[source_id]/route";
 
 /**
@@ -15,6 +16,7 @@ export function installApiFetch() {
     const request = new Request(url, { method: init?.method ?? "GET", headers: init?.headers, body: init?.body });
 
     if (url.pathname === "/api/respond") return respondPost(request);
+    if (url.pathname === "/api/review-tasks") return reviewTasksPost(request);
     const source = url.pathname.match(/^\/api\/sources\/(.+)$/);
     if (source?.[1]) {
       return sourceGet(request, { params: Promise.resolve({ source_id: decodeURIComponent(source[1]) }) });

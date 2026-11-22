@@ -1,7 +1,8 @@
 "use client";
 
-import { createContext, useContext, useMemo, useReducer, useState, type Dispatch, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useMemo, useReducer, useState, type Dispatch, type ReactNode } from "react";
 import type { OpportunityRow } from "@/contracts/blocks";
+import { readDrafts, writeDrafts } from "./draftStorage";
 import { initialWorkspaceState, workspaceReducer, type WorkspaceAction, type WorkspaceState } from "./state";
 
 export interface SourceView {
@@ -24,6 +25,12 @@ const WorkspaceContext = createContext<WorkspaceContextValue | null>(null);
 export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(workspaceReducer, initialWorkspaceState);
   const [sourceView, setSourceView] = useState<SourceView | null>(null);
+
+  // Drafts are restored after mount (never during render), so server and client markup match.
+  useEffect(() => dispatch({ type: "drafts_restored", ...readDrafts() }), []);
+  useEffect(() => {
+    if (state.draftsRestored) writeDrafts(state.drafts);
+  }, [state.drafts, state.draftsRestored]);
 
   const value = useMemo<WorkspaceContextValue>(
     () => ({

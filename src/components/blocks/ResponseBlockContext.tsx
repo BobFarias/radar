@@ -10,11 +10,14 @@ import { createContext, useContext } from "react";
 export interface ResponseBlockContextValue {
   /** Stable owner of the blocks (the conversation turn), used to scope per-table state across retries. */
   scopeId?: string;
+  /** The response that produced the blocks; review-form drafts are scoped to it. */
   requestId?: string;
   scenarioId?: string;
   onChoosePrompt?: () => void;
   /** Saved analysis these blocks belong to: shown in the table footer. `href` links to it in Opportunities. */
   analysis?: { reference: string; createdAt: string; href?: string };
+  /** Saved briefing these blocks belong to. `href` links to it in Briefing. */
+  briefing?: { reference: string; createdAt: string; href?: string };
   /** The response ended early; blocks must not present themselves as complete. */
   incomplete?: boolean;
 }

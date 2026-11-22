@@ -12,8 +12,10 @@ export {
   DataTableRowHeader,
 } from "./DataTable";
 export { Dialog } from "./Dialog";
-export { Field, Select } from "./Field";
+export { Field, Select, TextArea, TextInput } from "./Field";
 export { Popover } from "./Popover";
 export { RadioGroup, type RadioOption } from "./RadioGroup";
 export { ConfirmationState, EmptyState, ErrorState, LoadingState, WarningState } from "./StateMessage";
 export { CopyButton, type CopyState } from "./CopyButton";
+export { FilterPills } from "./FilterPills";
+export { Pagination } from "./Pagination";
