@@ -20,6 +20,15 @@ export function filterScope(ownerId: string | undefined, blockId: string): strin
   return `${ownerId ?? "standalone"}:${blockId}`;
 }
 
+export type AnalysisPeriod = "all" | "today" | "last7";
+
+export interface AnalysisListView {
+  status: "all" | "complete" | "partial";
+  period: AnalysisPeriod;
+  sort: "newest" | "oldest";
+  page: number;
+}
+
 export interface Draft {
   client_id: string;
   opportunity_id: string;
@@ -32,6 +41,8 @@ export interface Draft {
 
 export interface WorkspaceState {
   selectedOpportunityId: string | null;
+  /** Opportunities list filter, sort and page; kept while the user opens an analysis and comes back. */
+  analysisList: AnalysisListView;
   /** Per-table filters keyed by `filterScope`; tables never share filters. */
   filters: Record<string, OpportunityFilters>;
   drafts: Record<string, Draft>;
@@ -39,12 +50,14 @@ export interface WorkspaceState {
 
 export const initialWorkspaceState: WorkspaceState = {
   selectedOpportunityId: null,
+  analysisList: { status: "all", period: "all", sort: "newest", page: 1 },
   filters: {},
   drafts: {},
 };
 
 export type WorkspaceAction =
   | { type: "opportunity_selected"; opportunityId: string | null }
+  | { type: "analysis_list_changed"; view: Partial<AnalysisListView> }
   | { type: "filters_changed"; scope: string; filters: Partial<OpportunityFilters> }
   | { type: "draft_seeded"; block: ReviewFormBlock; idempotencyKey: string }
   | { type: "draft_edited"; key: string; field: "subject" | "body"; value: string; newIdempotencyKey: string }
@@ -62,6 +75,9 @@ export function workspaceReducer(state: WorkspaceState, action: WorkspaceAction)
   switch (action.type) {
     case "opportunity_selected":
       return { ...state, selectedOpportunityId: action.opportunityId };
+
+    case "analysis_list_changed":
+      return { ...state, analysisList: { ...state.analysisList, ...action.view } };
 
     case "filters_changed":
       return {

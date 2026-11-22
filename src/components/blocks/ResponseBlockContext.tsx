@@ -13,6 +13,8 @@ export interface ResponseBlockContextValue {
   requestId?: string;
   scenarioId?: string;
   onChoosePrompt?: () => void;
+  /** Saved analysis these blocks belong to: shown in the table footer. `href` links to it in Opportunities. */
+  analysis?: { reference: string; createdAt: string; href?: string };
   /** The response ended early; blocks must not present themselves as complete. */
   incomplete?: boolean;
 }

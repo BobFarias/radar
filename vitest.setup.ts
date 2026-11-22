@@ -17,4 +17,6 @@ afterEach(async () => {
     const { cleanup } = await import("@testing-library/react");
     cleanup();
   }
+  // Saved history lives in localStorage; never let it leak between tests.
+  if (typeof window !== "undefined") window.localStorage.clear();
 });

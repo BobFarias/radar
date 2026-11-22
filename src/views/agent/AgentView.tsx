@@ -6,6 +6,8 @@ import { ResponseBlockContext } from "@/components/blocks/ResponseBlockContext";
 import { BlockRenderer } from "@/components/blocks/BlockRenderer";
 import type { ScenarioId } from "@/contracts/api";
 import { useAgentSession } from "@/state/agent/AgentSessionProvider";
+import { analysisHref, opportunityHistory } from "@/state/history/analysisSnapshot";
+import { useSnapshotHistory } from "@/state/history/useSnapshotHistory";
 import { turnView, type Turn } from "@/state/agent/conversation";
 import { Composer } from "./Composer";
 import { ResponseOutcome } from "./ResponseOutcome";
@@ -62,6 +64,13 @@ function TurnItem({
   const { shown } = view;
   // Partial if the blocks on screen came from a response that ended early.
   const incomplete = shown?.phase === "partial";
+  // Once this answer was saved as an analysis, its tables show the reference and link to it.
+  const history = useSnapshotHistory(opportunityHistory);
+  const saved = history.status === "ready" ? history.items.find((s) => s.requestId === shown?.requestId) : undefined;
+  const analysis = useMemo(
+    () => (saved ? { reference: saved.reference, createdAt: saved.createdAt, href: analysisHref(saved.reference) } : undefined),
+    [saved],
+  );
   const blockContext = useMemo(
     () => ({
       scopeId: turn.requestId,
@@ -69,8 +78,9 @@ function TurnItem({
       scenarioId: turn.scenarioId,
       onChoosePrompt,
       incomplete,
+      analysis,
     }),
-    [shown?.requestId, turn.requestId, turn.scenarioId, onChoosePrompt, incomplete],
+    [shown?.requestId, turn.requestId, turn.scenarioId, onChoosePrompt, incomplete, analysis],
   );
 
   return (
@@ -87,7 +97,8 @@ function TurnItem({
         </p>
       ) : shown ? (
         <div className="grid gap-4">
-          <div aria-live="polite">
+          {/* Only the active turn announces changes; finished turns stay quiet. */}
+          <div aria-live={isActive ? "polite" : "off"}>
             <ResponseOutcome view={view} scenarioId={turn.scenarioId} onRetry={isActive ? retry : undefined} />
           </div>
           {view.superseded ? (
