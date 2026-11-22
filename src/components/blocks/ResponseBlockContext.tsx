@@ -8,6 +8,8 @@ import { createContext, useContext } from "react";
  * the response is incomplete. Blocks rendered elsewhere get the defaults.
  */
 export interface ResponseBlockContextValue {
+  /** Stable owner of the blocks (the conversation turn), used to scope per-table state across retries. */
+  scopeId?: string;
   requestId?: string;
   scenarioId?: string;
   onChoosePrompt?: () => void;

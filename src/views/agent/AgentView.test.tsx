@@ -157,6 +157,48 @@ describe("Unsupported and malformed blocks", () => {
   });
 });
 
+describe("Per-table filters across the conversation", () => {
+  it("filtering one answer's table leaves another answer's table unchanged, also after switching workspace", async () => {
+    const { rerender } = renderWithRadar(<AgentView />);
+    send("overview");
+    await flush();
+    send("overview");
+    await flush();
+    const [first, second] = turns() as [HTMLElement, HTMLElement];
+
+    fireEvent.change(within(first).getByRole("searchbox", { name: "Search opportunities" }), { target: { value: "grid" } });
+    fireEvent.click(within(second).getByRole("button", { name: "Filters" }));
+    fireEvent.click(within(second).getByRole("radio", { name: "Medium" }));
+    fireEvent.click(within(second).getByRole("button", { name: "Discuss cross-border payment data arrangements" }));
+
+    expect(within(first).getByText("Showing 1 of 3")).toBeInTheDocument();
+    expect(within(second).getByText("Showing 1 of 3")).toBeInTheDocument();
+    expect(within(first).getByRole("cell", { name: "Northstar Renewables" })).toBeInTheDocument();
+    expect(within(second).getByRole("searchbox", { name: "Search opportunities" })).toHaveValue("");
+
+    // Leave the Agent workspace and come back: conversation, filters and selection are kept.
+    rerender(<p>Opportunities workspace</p>);
+    rerender(<AgentView />);
+    const [again1, again2] = turns() as [HTMLElement, HTMLElement];
+    expect(within(again1).getByRole("searchbox", { name: "Search opportunities" })).toHaveValue("grid");
+    expect(within(again2).getByRole("button", { name: "Filters (1 active)" })).toBeInTheDocument();
+    expect(within(again2).getByRole("button", { name: "Discuss cross-border payment data arrangements" })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+  });
+
+  it("keeps a table's filters through a retry of the same answer", async () => {
+    renderWithRadar(<AgentView />);
+    send("partial_then_error");
+    await flush();
+    fireEvent.change(screen.getByRole("searchbox", { name: "Search opportunities" }), { target: { value: "payment" } });
+    fireEvent.click(screen.getByRole("button", { name: /^Try again/ }));
+    await flush();
+    expect(screen.getByRole("searchbox", { name: "Search opportunities" })).toHaveValue("payment");
+  });
+});
+
 describe("Partial results (partial_then_error)", () => {
   const PARTIAL_TITLE = "Your opportunity summary is partially ready";
   const banner = () => screen.getByRole("region", { name: PARTIAL_TITLE });

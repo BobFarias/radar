@@ -1,6 +1,7 @@
 "use client";
 
 import { FileText, ListFilter, Search, Zap } from "lucide-react";
+import { useId } from "react";
 import { PRIORITIES, STAGES, type OpportunityRow, type OpportunityTableBlock, type Priority, type Stage } from "@/contracts/blocks";
 import {
   Badge,
@@ -19,7 +20,7 @@ import {
   type BadgeTone,
 } from "@/components/ui";
 import { activeFilterCount, clientOptions, filterOpportunities, NO_FILTERS } from "@/state/workspace/filters";
-import type { OpportunityFilters } from "@/state/workspace/state";
+import { filterScope, filtersFor, type OpportunityFilters } from "@/state/workspace/state";
 import { useWorkspace } from "@/state/workspace/WorkspaceProvider";
 import { useResponseBlockContext } from "./ResponseBlockContext";
 
@@ -132,15 +133,18 @@ function SourceButtons({ row }: { row: OpportunityRow }) {
 
 export function OpportunityTable({ block }: { block: OpportunityTableBlock }) {
   const { state, dispatch } = useWorkspace();
-  const { incomplete = false } = useResponseBlockContext();
-  const headingId = `${block.id}-heading`;
-  const rows = filterOpportunities(block.rows, state.filters);
-  const setFilters = (filters: Partial<OpportunityFilters>) => dispatch({ type: "filters_changed", filters });
+  const { incomplete = false, scopeId } = useResponseBlockContext();
+  // Each table owns its filters (turn + block), so filtering one never changes another.
+  const scope = filterScope(scopeId, block.id);
+  const filters = filtersFor(state, scope);
+  const headingId = useId();
+  const rows = filterOpportunities(block.rows, filters);
+  const setFilters = (next: Partial<OpportunityFilters>) => dispatch({ type: "filters_changed", scope, filters: next });
   const hasRows = block.rows.length > 0;
 
   return (
     <div className="grid gap-3">
-      {hasRows ? <OpportunityFilters rows={block.rows} filters={state.filters} shown={rows.length} incomplete={incomplete} onChange={setFilters} /> : null}
+      {hasRows ? <OpportunityFilters rows={block.rows} filters={filters} shown={rows.length} incomplete={incomplete} onChange={setFilters} /> : null}
 
       <section aria-labelledby={headingId} className="overflow-hidden rounded-2xl border border-sand bg-surface">
         <div className="p-[17px]">

@@ -63,7 +63,13 @@ function TurnItem({
   // Partial if the blocks on screen came from a response that ended early.
   const incomplete = shown?.phase === "partial";
   const blockContext = useMemo(
-    () => ({ requestId: shown?.requestId ?? turn.requestId, scenarioId: turn.scenarioId, onChoosePrompt, incomplete }),
+    () => ({
+      scopeId: turn.requestId,
+      requestId: shown?.requestId ?? turn.requestId,
+      scenarioId: turn.scenarioId,
+      onChoosePrompt,
+      incomplete,
+    }),
     [shown?.requestId, turn.requestId, turn.scenarioId, onChoosePrompt, incomplete],
   );
 

@@ -6,6 +6,7 @@ import { fixtureBlock } from "@/test/fixtures";
 import { renderWithRadar } from "@/test/render";
 import { validateBlock } from "@/validation/blocks";
 import { OpportunityTable } from "./OpportunityTable";
+import { ResponseBlockContext } from "./ResponseBlockContext";
 
 function validated(scenario: "overview" | "partial_then_error", id: string): OpportunityTableBlock {
   const result = validateBlock(fixtureBlock(scenario, id));
@@ -106,17 +107,84 @@ describe("OpportunityTable", () => {
     expect(button).toHaveAttribute("aria-pressed", "false");
   });
 
-  it("keeps selection, search and filters when a new response renders a new table", () => {
+  it("keeps two tables' filters independent while sharing the opportunity selection", () => {
+    renderWithRadar(
+      <>
+        <ResponseBlockContext.Provider value={{ scopeId: "turn-a" }}>
+          <OpportunityTable block={overview()} />
+        </ResponseBlockContext.Provider>
+        <ResponseBlockContext.Provider value={{ scopeId: "turn-b" }}>
+          <OpportunityTable block={overview()} />
+        </ResponseBlockContext.Provider>
+      </>,
+    );
+    const [a, b] = screen.getAllByRole("region", { name: "Client opportunities" }) as [HTMLElement, HTMLElement];
+    const tableA = within(a).getByRole("table");
+    const wrapperA = a.parentElement!;
+    const wrapperB = b.parentElement!;
+
+    // Table A: client filter. Table B: search + stage filter.
+    fireEvent.click(within(wrapperA).getByRole("button", { name: "Filters" }));
+    fireEvent.click(within(wrapperA).getByRole("radio", { name: "Asteria Payments" }));
+    fireEvent.keyDown(document, { key: "Escape" });
+    fireEvent.change(within(wrapperB).getByRole("searchbox"), { target: { value: "grid" } });
+
+    expect(within(tableA).getAllByRole("row")).toHaveLength(3);
+    expect(within(wrapperA).getByText("Showing 2 of 3")).toBeInTheDocument();
+    expect(within(wrapperA).getByRole("searchbox")).toHaveValue("");
+    expect(within(wrapperB).getByText("Showing 1 of 3")).toBeInTheDocument();
+    expect(within(wrapperB).getByRole("button", { name: "Filters" })).toBeInTheDocument();
+    expect(within(wrapperA).getByRole("button", { name: "Filters (1 active)" })).toBeInTheDocument();
+
+    // Selecting in table A is reflected in table B (selection is not a filter).
+    fireEvent.click(within(a).getByRole("button", { name: "Review payment resilience readiness" }));
+    expect(within(a).getByRole("button", { name: "Review payment resilience readiness" })).toHaveAttribute("aria-pressed", "true");
+    fireEvent.change(within(wrapperB).getByRole("searchbox"), { target: { value: "" } });
+    expect(within(b).getByRole("button", { name: "Review payment resilience readiness" })).toHaveAttribute("aria-pressed", "true");
+    // ...and clearing B's search didn't touch A's filter.
+    expect(within(wrapperA).getByText("Showing 2 of 3")).toBeInTheDocument();
+  });
+
+  it("gives each table its own accessible name even when two share a block id", () => {
+    renderWithRadar(
+      <>
+        <ResponseBlockContext.Provider value={{ scopeId: "turn-a" }}>
+          <OpportunityTable block={overview()} />
+        </ResponseBlockContext.Provider>
+        <ResponseBlockContext.Provider value={{ scopeId: "turn-b" }}>
+          <OpportunityTable block={overview()} />
+        </ResponseBlockContext.Provider>
+      </>,
+    );
+    const ids = screen.getAllByRole("region", { name: "Client opportunities" }).map((r) => r.getAttribute("aria-labelledby"));
+    expect(new Set(ids).size).toBe(2);
+  });
+
+  it("keeps a table's filters when it is unmounted and shown again (navigating away and back)", () => {
+    const table = (
+      <ResponseBlockContext.Provider value={{ scopeId: "turn-a" }}>
+        <OpportunityTable block={overview()} />
+      </ResponseBlockContext.Provider>
+    );
+    const { rerender } = renderWithRadar(table);
+    fireEvent.change(screen.getByRole("searchbox", { name: "Search opportunities" }), { target: { value: "grid" } });
+    fireEvent.click(screen.getByRole("button", { name: "Check grid application completeness" }));
+
+    rerender(<p>Another workspace</p>);
+    expect(screen.queryByRole("table")).toBeNull();
+    rerender(table);
+    expect(screen.getByRole("searchbox", { name: "Search opportunities" })).toHaveValue("grid");
+    expect(bodyRows()).toHaveLength(1);
+    expect(screen.getByRole("button", { name: "Check grid application completeness" })).toHaveAttribute("aria-pressed", "true");
+  });
+
+  it("keeps the selection but not the filters when a different table renders", () => {
     const { rerender } = renderWithRadar(<OpportunityTable block={overview()} />);
     fireEvent.click(screen.getByRole("button", { name: "Review payment resilience readiness" }));
     fireEvent.change(screen.getByRole("searchbox", { name: "Search opportunities" }), { target: { value: "payment" } });
-    openFilters();
-    pick("Client", "Asteria Payments");
 
-    // Same providers, different validated block (as when a later response arrives).
     rerender(<OpportunityTable block={validated("partial_then_error", "refresh-table")} />);
-    expect(screen.getByRole("searchbox", { name: "Search opportunities" })).toHaveValue("payment");
-    expect(screen.getByRole("button", { name: "Filters (1 active)" })).toBeInTheDocument();
+    expect(screen.getByRole("searchbox", { name: "Search opportunities" })).toHaveValue("");
     expect(screen.getByRole("button", { name: "Review payment resilience readiness" })).toHaveAttribute("aria-pressed", "true");
   });
 

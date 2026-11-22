@@ -1,7 +1,16 @@
 import { describe, expect, it } from "vitest";
 import type { ReviewFormBlock } from "@/contracts/blocks";
 import { fixtureBlock } from "@/test/fixtures";
-import { draftKey, initialWorkspaceState, workspaceReducer, type WorkspaceAction, type WorkspaceState } from "./state";
+import {
+  draftKey,
+  filterScope,
+  filtersFor,
+  initialWorkspaceState,
+  NO_FILTERS,
+  workspaceReducer,
+  type WorkspaceAction,
+  type WorkspaceState,
+} from "./state";
 
 const form = fixtureBlock("client_focus", "client-review") as ReviewFormBlock;
 const key = draftKey(form);
@@ -50,11 +59,22 @@ describe("workspaceReducer — selections", () => {
   it("preserves selection and filters independently of drafts", () => {
     const s = run([
       { type: "opportunity_selected", opportunityId: "O002" },
-      { type: "filters_changed", filters: { priority: "High" } },
+      { type: "filters_changed", scope: "t1:table", filters: { priority: "High" } },
       seed(),
-      { type: "filters_changed", filters: { clientId: "CL001" } },
+      { type: "filters_changed", scope: "t1:table", filters: { clientId: "CL001" } },
     ]);
     expect(s.selectedOpportunityId).toBe("O002");
-    expect(s.filters).toEqual({ query: "", clientId: "CL001", priority: "High", stage: null });
+    expect(filtersFor(s, "t1:table")).toEqual({ query: "", clientId: "CL001", priority: "High", stage: null });
+  });
+
+  it("keeps filters separate per table scope", () => {
+    const s = run([
+      { type: "filters_changed", scope: filterScope("t1", "overview-table"), filters: { priority: "High" } },
+      { type: "filters_changed", scope: filterScope("t2", "overview-table"), filters: { stage: "Reviewing" } },
+    ]);
+    expect(filtersFor(s, "t1:overview-table")).toEqual({ ...NO_FILTERS, priority: "High" });
+    expect(filtersFor(s, "t2:overview-table")).toEqual({ ...NO_FILTERS, stage: "Reviewing" });
+    expect(filtersFor(s, "t3:overview-table")).toBe(NO_FILTERS);
+    expect(filterScope(undefined, "x")).toBe("standalone:x");
   });
 });

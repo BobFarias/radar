@@ -2,7 +2,7 @@ import type { OpportunityRow } from "@/contracts/blocks";
 import type { OpportunityFilters } from "./state";
 
 /** Application-owned filtering; never driven by response JSON. */
-export const NO_FILTERS: OpportunityFilters = { query: "", clientId: null, priority: null, stage: null };
+export { NO_FILTERS } from "./state";
 
 function matchesQuery(row: OpportunityRow, query: string): boolean {
   const q = query.trim().toLowerCase();
