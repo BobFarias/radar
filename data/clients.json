@@ -1,0 +1,29 @@
+{
+  "CL001": {
+    "client_id": "CL001",
+    "name": "Asteria Payments",
+    "sector": "Payments",
+    "activities": [
+      "Merchant acquiring",
+      "Online payment processing"
+    ],
+    "markets": [
+      "UK",
+      "EU"
+    ],
+    "relationship_notes": "Existing advisory relationship. Partner wants opportunities tied to the client’s actual activities."
+  },
+  "CL002": {
+    "client_id": "CL002",
+    "name": "Northstar Renewables",
+    "sector": "Energy",
+    "activities": [
+      "Solar development",
+      "Battery storage"
+    ],
+    "markets": [
+      "UK"
+    ],
+    "relationship_notes": "Exploring grid access and project development advice."
+  }
+}

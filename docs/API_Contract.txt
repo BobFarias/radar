@@ -1,0 +1,26 @@
+ASSESSMENT API CONTRACT
+Implement a small application API around the supplied local data. No live LLM is needed.
+
+POST /api/respond
+Request: {"scenario_id": "overview", "request_id": "unique-request-id"}
+Use a visible demo scenario selector. The supplied scenarios represent backend-generated
+responses to the stated prompts. Treat JSON as untrusted input at the render boundary.
+Return the chosen fixture's HTTP status, run_id, and event list. Simulate event arrival
+over time on client or server; a specific streaming transport is not required.
+Keep run/request identity so an older response cannot overwrite a newer request.
+
+GET /api/sources/:source_id
+Return the matching source record for the evidence view, or a clear not-found response.
+
+POST /api/review-tasks
+Request: {"client_id":"CL001","opportunity_id":"O001","subject":"...",
+          "body":"...","confirmed":true,"idempotency_key":"..."}
+Require explicit review confirmation and validate client/opportunity references.
+Persist local tasks and return a task_id. Repeated keys must not create duplicates.
+Never send an email or write to an external CRM. Local file or SQLite storage is sufficient.
+Permission_denied returns 403 with no protected content. A UI check is not a substitute
+for enforcing access at a real application API. Describe Entra ID integration in your note.
+
+block_schema.json defines the four allowed component types. response_fixtures.json also
+includes deliberate unknown and invalid blocks, which should fail validation or fall back.
+Do not render or execute arbitrary generated HTML, JavaScript or component code.

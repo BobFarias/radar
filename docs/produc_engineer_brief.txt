@@ -1,0 +1,29 @@
+Full Stack Product Engineer assessment
+A generative interface for client opportunities
+Build a responsive application that helps a relationship partner explore client opportunities, examine the
+supporting evidence and prepare a review task. Structured AI responses should determine which interface
+components appear and how users can act on them.
+This is a frontend-led full-stack exercise. We provide fictional data and response fixtures so you can concentrate
+on product experience, reusable components, application services and reliable behaviour. No legal knowledge or
+live LLM is required.
+Time and tools
+Aim for six hours and stop after eight hours, including presentation preparation. Submit partial work and next
+steps if you reach the limit. AI assistance is allowed; disclose material use and how you verified its outputs. We
+assess work you can explain and reproduce. No paid service or cloud account is required.
+What we provide
+- data/: two client profiles, three opportunities, source material and six response scenarios.
+- block_schema.json: allowed table, chart, evidence-card and review-form structures, plus deliberately invalid
+fixtures.
+- API_Contract.txt: the small application API and local task persistence required for the exercise. README.txt
+covers scope and setup.
+Build two user journeys
+- Explore opportunities: submit or select the overview prompt, render its table and chart, filter or select an
+opportunity, and open the supporting source.
+- Prepare a briefing: request the client-focused response and render the evidence cards and editable review
+form. Preserve relevant user selections between responses. Require explicit confirmation before saving a
+local task and prevent duplicate saves.
+- Use a typed component registry so response structure drives the interface. Validate incoming blocks and
+provide a useful fallback for unsupported or invalid types. Never execute generated HTML, JavaScript or
+component code.
+- Build a small API around the supplied fixtures and local task storage. Use a visible scenario selector or
+prompt suggestions to exercise the provided cases. A live model is optional.

@@ -1,0 +1,38 @@
+[
+  {
+    "opportunity_id": "O001",
+    "client_id": "CL001",
+    "client_name": "Asteria Payments",
+    "title": "Review payment resilience readiness",
+    "priority": "High",
+    "stage": "New",
+    "source_ids": [
+      "SRC001"
+    ],
+    "status_note": "Consultation proposal; no mandatory implementation date."
+  },
+  {
+    "opportunity_id": "O002",
+    "client_id": "CL001",
+    "client_name": "Asteria Payments",
+    "title": "Discuss cross-border payment data arrangements",
+    "priority": "Medium",
+    "stage": "New",
+    "source_ids": [
+      "SRC002"
+    ],
+    "status_note": "Industry review; relevance needs partner confirmation."
+  },
+  {
+    "opportunity_id": "O003",
+    "client_id": "CL002",
+    "client_name": "Northstar Renewables",
+    "title": "Check grid application completeness",
+    "priority": "High",
+    "stage": "Reviewing",
+    "source_ids": [
+      "SRC003"
+    ],
+    "status_note": "Planned process; verify current project status."
+  }
+]

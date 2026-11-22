@@ -1,0 +1,231 @@
+{
+  "overview": {
+    "prompt": "Show the current client opportunities and their priority.",
+    "http_status": 200,
+    "run_id": "RUN-OVERVIEW",
+    "events": [
+      {
+        "kind": "status",
+        "message": "Preparing opportunity overview"
+      },
+      {
+        "kind": "block",
+        "block": {
+          "id": "overview-table",
+          "type": "opportunity_table",
+          "title": "Client opportunities",
+          "rows": [
+            {
+              "opportunity_id": "O001",
+              "client_id": "CL001",
+              "client_name": "Asteria Payments",
+              "title": "Review payment resilience readiness",
+              "priority": "High",
+              "stage": "New",
+              "source_ids": [
+                "SRC001"
+              ],
+              "status_note": "Consultation proposal; no mandatory implementation date."
+            },
+            {
+              "opportunity_id": "O002",
+              "client_id": "CL001",
+              "client_name": "Asteria Payments",
+              "title": "Discuss cross-border payment data arrangements",
+              "priority": "Medium",
+              "stage": "New",
+              "source_ids": [
+                "SRC002"
+              ],
+              "status_note": "Industry review; relevance needs partner confirmation."
+            },
+            {
+              "opportunity_id": "O003",
+              "client_id": "CL002",
+              "client_name": "Northstar Renewables",
+              "title": "Check grid application completeness",
+              "priority": "High",
+              "stage": "Reviewing",
+              "source_ids": [
+                "SRC003"
+              ],
+              "status_note": "Planned process; verify current project status."
+            }
+          ]
+        }
+      },
+      {
+        "kind": "block",
+        "block": {
+          "id": "overview-chart",
+          "type": "bar_chart",
+          "title": "Opportunities by priority",
+          "x_label": "Priority",
+          "y_label": "Number of opportunities",
+          "series": [
+            {
+              "label": "High",
+              "value": 2
+            },
+            {
+              "label": "Medium",
+              "value": 1
+            }
+          ]
+        }
+      },
+      {
+        "kind": "complete",
+        "message": "Three opportunities available for review."
+      }
+    ]
+  },
+  "client_focus": {
+    "prompt": "Focus on Asteria Payments and help me prepare a partner briefing.",
+    "http_status": 200,
+    "run_id": "RUN-CLIENT",
+    "events": [
+      {
+        "kind": "status",
+        "message": "Gathering evidence for Asteria Payments"
+      },
+      {
+        "kind": "block",
+        "block": {
+          "id": "client-evidence",
+          "type": "evidence_cards",
+          "title": "Evidence for Asteria Payments",
+          "items": [
+            {
+              "source_id": "SRC001",
+              "excerpt": "A draft consultation proposes resilience testing for UK merchant acquirers.",
+              "interpretation": "Discuss readiness and the consultation response; this is not yet a rule in force."
+            },
+            {
+              "source_id": "SRC002",
+              "excerpt": "No mandatory implementation date has been announced.",
+              "interpretation": "Explore payment data arrangements with the relationship partner."
+            }
+          ]
+        }
+      },
+      {
+        "kind": "block",
+        "block": {
+          "id": "client-review",
+          "type": "review_form",
+          "title": "Prepare a review task",
+          "client_id": "CL001",
+          "opportunity_id": "O001",
+          "subject": "Payment resilience consultation",
+          "body": "Discuss the consultation and assess relevance to Asteria’s merchant-acquiring activities. Confirm the current scope with the relationship partner."
+        }
+      },
+      {
+        "kind": "complete",
+        "message": "Briefing prepared. Review and edit before saving a local task."
+      }
+    ]
+  },
+  "partial_then_error": {
+    "prompt": "Refresh the current opportunity summary.",
+    "http_status": 200,
+    "run_id": "RUN-PARTIAL",
+    "events": [
+      {
+        "kind": "status",
+        "message": "Refreshing data"
+      },
+      {
+        "kind": "block",
+        "block": {
+          "id": "refresh-table",
+          "type": "opportunity_table",
+          "title": "Available opportunity data",
+          "rows": [
+            {
+              "opportunity_id": "O001",
+              "client_id": "CL001",
+              "client_name": "Asteria Payments",
+              "title": "Review payment resilience readiness",
+              "priority": "High",
+              "stage": "New",
+              "source_ids": [
+                "SRC001"
+              ],
+              "status_note": "Consultation proposal; no mandatory implementation date."
+            }
+          ]
+        }
+      },
+      {
+        "kind": "error",
+        "code": "upstream_timeout",
+        "message": "The response ended before all evidence was available.",
+        "retryable": true
+      }
+    ]
+  },
+  "unsupported_block": {
+    "prompt": "Show an alternative opportunity view.",
+    "http_status": 200,
+    "run_id": "RUN-UNSUPPORTED",
+    "events": [
+      {
+        "kind": "block",
+        "block": {
+          "id": "future-block",
+          "type": "future_component",
+          "title": "Unavailable view",
+          "payload": {
+            "html": "<script>window.__assessmentUnsafe = true</script>"
+          }
+        }
+      },
+      {
+        "kind": "complete",
+        "message": "An unsupported component was requested."
+      }
+    ]
+  },
+  "malformed_block": {
+    "prompt": "Show the opportunity counts.",
+    "http_status": 200,
+    "run_id": "RUN-MALFORMED",
+    "events": [
+      {
+        "kind": "block",
+        "block": {
+          "id": "invalid-chart",
+          "type": "bar_chart",
+          "title": "Opportunities",
+          "x_label": "Priority",
+          "y_label": "Count",
+          "series": [
+            {
+              "label": "High",
+              "value": "not-a-number"
+            }
+          ]
+        }
+      },
+      {
+        "kind": "complete",
+        "message": "Count response received."
+      }
+    ]
+  },
+  "permission_denied": {
+    "prompt": "Show restricted client financials.",
+    "http_status": 403,
+    "run_id": "RUN-DENIED",
+    "events": [
+      {
+        "kind": "error",
+        "code": "forbidden",
+        "message": "Your account does not have access to this information.",
+        "retryable": false
+      }
+    ]
+  }
+}

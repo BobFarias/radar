@@ -1,0 +1,30 @@
+{
+  "SRC001": {
+    "source_id": "SRC001",
+    "title": "Payment resilience consultation",
+    "source_name": "Fictional Financial Supervisor",
+    "published_date": "2026-09-28",
+    "content": "A draft consultation proposes resilience testing for UK merchant acquirers. It is a proposal, not a rule in force. Responses are invited by 15 December 2026."
+  },
+  "SRC002": {
+    "source_id": "SRC002",
+    "title": "EU payment data review",
+    "source_name": "Fictional European Secretariat",
+    "published_date": "2026-09-23",
+    "content": "An industry review invites payment processors operating in the EU to assess cross-border data arrangements. No mandatory implementation date has been announced."
+  },
+  "SRC003": {
+    "source_id": "SRC003",
+    "title": "Solar grid access bulletin",
+    "source_name": "Fictional Grid Office",
+    "published_date": "2026-09-25",
+    "content": "A new application review process is planned for UK solar and battery projects. Existing applications will require a completeness check."
+  },
+  "SRC004": {
+    "source_id": "SRC004",
+    "title": "Older payment resilience bulletin",
+    "source_name": "Fictional Sector Bulletin",
+    "published_date": "2026-08-20",
+    "content": "The bulletin reports that resilience testing will become mandatory on 1 November 2026. This conflicts with the newer consultation, which describes a proposal."
+  }
+}
