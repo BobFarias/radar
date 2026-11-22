@@ -1,0 +1,20 @@
+import type { ReactNode } from "react";
+import { cn } from "./cn";
+
+export type BadgeTone = "neutral" | "accent" | "warn" | "danger" | "ok";
+
+const tones: Record<BadgeTone, string> = {
+  neutral: "bg-chip text-ink",
+  accent: "bg-accent/10 text-accent",
+  warn: "bg-warn-bg text-warn",
+  danger: "bg-danger-bg text-danger",
+  ok: "bg-ok-bg text-ok",
+};
+
+export function Badge({ tone = "neutral", children }: { tone?: BadgeTone; children: ReactNode }) {
+  return (
+    <span className={cn("inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium", tones[tone])}>
+      {children}
+    </span>
+  );
+}

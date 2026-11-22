@@ -155,3 +155,8 @@ vite.config.ts.timestamp-*
 .nx/cache
 .nx/workspace-data
 .nx/migrate-runs
+
+# RADAR local task storage
+.data/
+next-env.d.ts
+*.tsbuildinfo
