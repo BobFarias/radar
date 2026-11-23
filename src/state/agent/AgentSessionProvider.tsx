@@ -12,7 +12,7 @@ import { browserDeps, useResponseSession } from "@/state/response/useResponseSes
 import { conversationReducer, initialConversationState, type ConversationState, type ScenarioOption } from "./conversation";
 
 /** Demo-only delay used to show an older, slower request being superseded. */
-export const SLOW_RESPONSE_MS = 2500;
+export const SLOW_RESPONSE_MS = 6000;
 
 interface AgentSessionValue {
   scenarios: ScenarioOption[];

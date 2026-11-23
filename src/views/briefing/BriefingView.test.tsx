@@ -218,6 +218,24 @@ describe("Agent → Briefing journey (client_focus)", () => {
     expect(forms()[0]).toHaveTextContent(`Task ID ${tasks[0]!.task_id as string}`);
   });
 
+  it("demonstrates a repeated save with the demo lost-response option", async () => {
+    await generate("client_focus");
+    review();
+    fireEvent.click(form().getByRole("checkbox", { name: /Simulate a lost response/ }));
+    confirm();
+    expect(await form().findByRole("alert")).toHaveTextContent("RADAR couldn't be reached");
+    const first = await storedTasks();
+    expect(first).toHaveLength(1);
+
+    fireEvent.click(form().getByRole("button", { name: "Try again" }));
+    await savedConfirmation();
+    expect(form().getByText("It had already been saved, so no duplicate was created.")).toBeInTheDocument();
+    expect(postedKeys()).toHaveLength(2);
+    expect(new Set(postedKeys()).size).toBe(1);
+    expect(await storedTasks()).toEqual(first);
+    expect(forms()[0]).toHaveTextContent(`Task ID ${first[0]!.task_id as string}`);
+  });
+
   it("explains a server failure and recovers on retry", async () => {
     await writeFile(tasksFile, "{ corrupted");
     await generate("client_focus");

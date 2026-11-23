@@ -2,6 +2,7 @@
 
 import { Briefcase, PenLine, Sparkles } from "lucide-react";
 import { useEffect, useId, useRef, useState, type Ref } from "react";
+import type { ReviewTaskRequest } from "@/contracts/api";
 import type { ReviewFormBlock } from "@/contracts/blocks";
 import {
   Badge,
@@ -139,6 +140,16 @@ function TextField({
   );
 }
 
+/**
+ * Demo only: sends the save to the server, then drops its reply, as if the
+ * connection failed after the task was stored. Retrying with the same key
+ * shows the server returning the existing task instead of a duplicate.
+ */
+const fetchLosingResponse: typeof fetch = async (input, init) => {
+  await fetch(input, init);
+  throw new TypeError("Simulated lost response");
+};
+
 function SavedTask({ draft, replayed }: { draft: Draft; replayed: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => ref.current?.focus(), []);
@@ -197,6 +208,8 @@ export function ReviewForm({ block }: { block: ReviewFormBlock }) {
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<SubmitError | null>(null);
   const [replayed, setReplayed] = useState(false);
+  const [loseResponse, setLoseResponse] = useState(false);
+  const loseResponseId = useId();
   const inFlight = useRef(false);
   const subjectRef = useRef<HTMLInputElement & HTMLTextAreaElement>(null);
   const bodyRef = useRef<HTMLInputElement & HTMLTextAreaElement>(null);
@@ -274,14 +287,18 @@ export function ReviewForm({ block }: { block: ReviewFormBlock }) {
     setSaving(true);
     setSaveError(null);
     dispatch({ type: "draft_submit_started", key });
-    void submitReviewTask({
+    // Demo only: applies to this one attempt, so "Try again" then behaves normally.
+    const fetchImpl = loseResponse ? fetchLosingResponse : fetch;
+    setLoseResponse(false);
+    const request: ReviewTaskRequest = {
       client_id: draft.client_id,
       opportunity_id: draft.opportunity_id,
       subject: draft.subject.trim(),
       body: draft.body.trim(),
       confirmed: true,
       idempotency_key: draft.idempotencyKey,
-    }).then(finish);
+    };
+    void submitReviewTask(request, fetchImpl).then(finish);
   };
 
   const saved = draft?.savedTaskId ? draft : null;
@@ -395,6 +412,19 @@ export function ReviewForm({ block }: { block: ReviewFormBlock }) {
                 {saveError.message}
               </ErrorState>
             ) : null}
+            {saveError?.retryable ? null : (
+              <div className="flex items-center gap-2 text-xs text-muted">
+                <input
+                  id={loseResponseId}
+                  type="checkbox"
+                  checked={loseResponse}
+                  disabled={saving}
+                  onChange={(e) => setLoseResponse(e.target.checked)}
+                  className="h-4 w-4 accent-accent"
+                />
+                <label htmlFor={loseResponseId}>Simulate a lost response (the task is saved, but its reply never arrives)</label>
+              </div>
+            )}
             <div className="flex flex-wrap gap-2">
               {saveError?.retryable ? null : (
                 <Button variant="primary" onClick={save} disabled={saving}>
