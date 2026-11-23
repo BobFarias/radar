@@ -34,6 +34,18 @@ body {
   outline-offset: 2px;
 }
 
+/* Keep keyboard focus clear of sticky bars (WCAG 2.4.11): the prompt bar on
+   the Agent page and, below md, the mobile header with the tab bar. */
+html:has([data-sticky-composer]) {
+  scroll-padding-bottom: 11rem;
+}
+
+@media (width < 48rem) {
+  html {
+    scroll-padding-top: 7rem;
+  }
+}
+
 /* Thin scrollbars from the Figma table design. */
 .scrollbar-thin {
   scrollbar-width: thin;

@@ -100,7 +100,7 @@ export function BriefingDetailView({
       <BackLink />
       {history.status === "loading" ? <LoadingState title="Loading briefing…" /> : null}
       {history.status === "ready" && !briefing ? (
-        <EmptyState title={`Briefing ${reference} isn't available`}>
+        <EmptyState titleAs="h1" title={`Briefing ${reference} isn't available`}>
           It isn&apos;t in this browser&apos;s saved history. It may have been generated in another browser or removed when
           older briefings were cleared.
         </EmptyState>

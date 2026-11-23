@@ -28,14 +28,14 @@ export function SnapshotFooter({
   return (
     <footer
       className={cn(
-        "flex min-h-[39px] flex-wrap items-center gap-x-1.5 gap-y-1 bg-sand px-[17px] py-2 text-sm text-[#6a6865]",
+        "flex min-h-[39px] flex-wrap items-center gap-x-1.5 gap-y-1 bg-sand px-[17px] py-2 text-sm text-[#5f5d5a]",
         className,
       )}
     >
       {icon}
       {label}
       {snapshot ? (
-        <span className="text-[#6a6865]">
+        <span className="text-[#5f5d5a]">
           <span aria-hidden="true"> — </span>
           <span className="font-medium">{snapshot.reference}</span>
           {snapshot.createdAt ? (
@@ -53,7 +53,7 @@ export function SnapshotFooter({
             href={snapshot.href}
             aria-label={`Open ${snapshot.reference} in ${workspace}`}
             title={`Open in ${workspace}`}
-            className="grid h-8 w-8 place-items-center rounded-full text-[#6a6865] transition hover:bg-surface/60 hover:text-ink"
+            className="grid h-8 w-8 place-items-center rounded-full text-[#5f5d5a] transition hover:bg-surface/60 hover:text-ink"
           >
             <SquareArrowOutUpRight aria-hidden="true" className="h-4 w-4" />
           </Link>

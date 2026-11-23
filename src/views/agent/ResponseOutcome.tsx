@@ -12,7 +12,7 @@ function StatusLine({ text }: { text: string }) {
   return (
     <p role="status" aria-busy="true" className="flex items-center gap-2 text-[15px] text-muted">
       <span>…{text}</span>
-      <span aria-hidden="true" className="h-2 w-2 animate-pulse rounded-full bg-accent" />
+      <span aria-hidden="true" className="h-2 w-2 animate-pulse rounded-full bg-accent motion-reduce:animate-none" />
     </p>
   );
 }

@@ -50,7 +50,7 @@ function AnalysisRow({ item }: { item: AnalysisSnapshot }) {
     <li>
       <Link
         href={analysisHref(item.reference)}
-        className="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-xl bg-[#f5f1ec] px-4 py-3 text-sm text-ink/85 transition hover:bg-line sm:flex-nowrap"
+        className="group/row flex flex-wrap items-center gap-x-4 gap-y-1 rounded-xl bg-[#f5f1ec] px-4 py-3 text-sm text-ink/85 transition hover:bg-line sm:flex-nowrap"
       >
         <span className="min-w-0 flex-1 font-medium">
           {item.title} — <span className="whitespace-nowrap">{item.reference}</span>
@@ -67,7 +67,7 @@ function AnalysisRow({ item }: { item: AnalysisSnapshot }) {
             {/* Visual tooltip; screen readers get the sr-only text above. */}
             <span
               aria-hidden="true"
-              className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 -translate-x-1/2 rounded-md bg-ink px-2 py-1 text-xs font-normal whitespace-nowrap text-surface opacity-0 shadow transition-opacity group-hover/creator:opacity-100"
+              className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 -translate-x-1/2 rounded-md bg-ink px-2 py-1 text-xs font-normal whitespace-nowrap text-surface opacity-0 shadow transition-opacity group-hover/creator:opacity-100 group-focus-visible/row:opacity-100"
             >
               Created by the Agent
             </span>

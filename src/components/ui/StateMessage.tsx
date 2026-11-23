@@ -11,12 +11,14 @@ interface StateProps {
   children?: ReactNode;
   actions?: ReactNode;
   className?: string;
+  /** Render the title as a heading when the message is the page's main content (e.g. not found). */
+  titleAs?: "p" | "h1" | "h2";
 }
 
-function Frame({ role, tone, title, children, actions, className }: StateProps & { role?: "alert" | "status"; tone: string }) {
+function Frame({ role, tone, title, children, actions, className, titleAs: Title = "p" }: StateProps & { role?: "alert" | "status"; tone: string }) {
   return (
     <div role={role} className={cn("rounded-xl px-4 py-3 text-sm", tone, className)}>
-      <p className="font-semibold">{title}</p>
+      <Title className="font-semibold">{title}</Title>
       {children ? <div className="mt-1">{children}</div> : null}
       {actions ? <div className="mt-3 flex flex-wrap gap-2">{actions}</div> : null}
     </div>
@@ -26,7 +28,7 @@ function Frame({ role, tone, title, children, actions, className }: StateProps &
 export function LoadingState({ title, children, className }: StateProps) {
   return (
     <div role="status" aria-busy="true" className={cn("flex items-center gap-3 text-sm text-muted", className)}>
-      <span aria-hidden="true" className="h-2 w-2 animate-pulse rounded-full bg-accent" />
+      <span aria-hidden="true" className="h-2 w-2 animate-pulse rounded-full bg-accent motion-reduce:animate-none" />
       <span>
         {title}
         {children}

@@ -148,7 +148,9 @@ export function AgentView() {
   const turnCount = conversation.turns.length;
 
   useEffect(() => {
-    if (turnCount > 0) lastTurnRef.current?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+    if (turnCount === 0) return;
+    const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    lastTurnRef.current?.scrollIntoView?.({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
   }, [turnCount]);
 
   return (
@@ -178,7 +180,7 @@ export function AgentView() {
         </div>
       )}
 
-      <div className="sticky bottom-0 bg-gradient-to-t from-surface via-surface to-transparent pt-4 pb-4 sm:pb-6">
+      <div data-sticky-composer className="sticky bottom-0 bg-gradient-to-t from-surface via-surface to-transparent pt-4 pb-4 sm:pb-6">
         <Composer scenarios={scenarios} selectRef={promptPickerRef} onSend={(id, { slow }) => send(id, { slow })} />
       </div>
     </div>

@@ -97,7 +97,7 @@ export function AnalysisDetailView({
       <BackLink />
       {history.status === "loading" ? <LoadingState title="Loading saved analysis…" /> : null}
       {history.status === "ready" && !analysis ? (
-        <EmptyState title={`Analysis ${reference} isn't available`}>
+        <EmptyState titleAs="h1" title={`Analysis ${reference} isn't available`}>
           It isn&apos;t in this browser&apos;s saved history. It may have been generated in another browser or removed when
           older analyses were cleared.
         </EmptyState>

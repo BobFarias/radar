@@ -5,7 +5,7 @@ export type BadgeTone = "neutral" | "accent" | "warn" | "danger" | "ok";
 
 const tones: Record<BadgeTone, string> = {
   neutral: "bg-chip text-ink",
-  accent: "bg-accent/10 text-accent",
+  accent: "bg-accent/10 text-danger", // text-accent on this tint is 4.15:1; danger keeps the red at 6.7:1
   warn: "bg-warn-bg text-warn",
   danger: "bg-danger-bg text-danger",
   ok: "bg-ok-bg text-ok",
